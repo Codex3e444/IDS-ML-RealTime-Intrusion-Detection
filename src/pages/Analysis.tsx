@@ -12,7 +12,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
-import { useRealtime } from "@/hooks/useRealtime";
+import { type RealtimeMessage, useRealtime } from "@/hooks/useRealtime";
 
 /**
  * Analysis.tsx — live-updating charts powered by useRealtime
@@ -54,7 +54,7 @@ const Analysis = () => {
   const [featureImportance, setFeatureImportance] = useState(initialFeatureImportance);
   const [attackTypes, setAttackTypes] = useState(initialAttackTypes);
 
-  const handleMessage = useCallback((msg: any) => {
+  const handleMessage = useCallback((msg: RealtimeMessage) => {
     try {
       if (!msg || typeof msg !== "object") return;
       const data = msg; // assume already parsed JSON
@@ -97,15 +97,15 @@ const Analysis = () => {
         if (Array.isArray(p.feature_importance) && p.feature_importance.length > 0) {
           // expected format: [{ feature: 'Flow Duration', importance: 0.12 }, ...]
           setFeatureImportance(
-            p.feature_importance.map((f: any) => ({
-              feature: f.feature,
-              importance: typeof f.importance === "number" ? f.importance : parseFloat(f.importance || 0),
+            p.feature_importance.map((f) => ({
+              feature: f.feature || "Unknown",
+              importance: typeof f.importance === "number" ? f.importance : parseFloat(f.importance || "0"),
             }))
           );
         } else {
           // If not provided, gently jitter existing importances so the chart "feels" live.
           setFeatureImportance((prev) =>
-            prev.map((f, i) => {
+            prev.map((f) => {
               // small random smoothing so values remain similar
               const jitter = (Math.random() - 0.5) * 0.01;
               return { ...f, importance: Math.max(0, parseFloat((f.importance + jitter).toFixed(3))) };
