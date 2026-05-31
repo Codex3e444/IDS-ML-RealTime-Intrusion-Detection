@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertTriangle, Shield, Clock } from "lucide-react";
-import { useRealtime } from "@/hooks/useRealtime";
+import { type RealtimeMessage, useRealtime } from "@/hooks/useRealtime";
 
 type Detection = {
   id: string;
@@ -101,7 +101,7 @@ const Detections = () => {
    * { event: 'detection', payload: { id, pred_label, score, severity, features, timestamp } }
    */
   const handleMessage = useCallback(
-    (msg: any) => {
+    (msg: RealtimeMessage) => {
       try {
         if (!msg || typeof msg !== "object") return;
 
@@ -123,8 +123,8 @@ const Detections = () => {
           const newRow: Detection = {
             id: newId,
             timestamp,
-            sourceIP: features.src_ip || features.sourceIP || "10.0.0.1",
-            destIP: features.dst_ip || features.destIP || "10.0.0.5",
+            sourceIP: String(features.src_ip || features.sourceIP || "10.0.0.1"),
+            destIP: String(features.dst_ip || features.destIP || "10.0.0.5"),
             attackType: pred_label,
             severity,
             confidence: typeof score === "number" ? score : 0,

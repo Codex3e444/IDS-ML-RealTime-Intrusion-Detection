@@ -14,7 +14,7 @@ import {
   AreaChart,
   Area,
 } from "recharts";
-import { useRealtime } from "../hooks/useRealtime";
+import { type RealtimeMessage, useRealtime } from "../hooks/useRealtime";
 
 const Index = () => {
   // Live states for dynamic updates
@@ -43,13 +43,13 @@ const Index = () => {
   ]);
 
   // 🔥 Handle incoming WebSocket messages
-  const handleMessage = useCallback((msg: any) => {
+  const handleMessage = useCallback((msg: RealtimeMessage) => {
     if (msg.event === "detection" && msg.payload) {
-      const { pred_label, score, severity } = msg.payload;
+      const { score = 0.5, severity } = msg.payload;
 
       // Update metric cards live
       setThreats((t) => t + (severity === "high" ? 1 : 0));
-      setAccuracy((a) => Math.min(100, a + (score - 0.5) * 0.1));
+      setAccuracy((a) => Math.min(100, a + (Number(score) - 0.5) * 0.1));
       setTraffic((t) => Math.floor(t + (Math.random() * 150 - 50)));
       setFalsePos((f) => Math.max(0.1, f + (Math.random() - 0.5) * 0.01));
 
